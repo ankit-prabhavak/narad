@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
+import { AuthModule } from './auth/auth.module';
 import { env } from './config/env';
 import { HealthController } from './health/health.controller';
 import { ReadinessController } from './health/readiness.controller';
@@ -23,6 +24,7 @@ import { ReadinessController } from './health/readiness.controller';
       },
     }),
     MongooseModule.forRoot(env.MONGO_URI),
+    AuthModule,
   ],
   controllers: [HealthController, ReadinessController],
 })
