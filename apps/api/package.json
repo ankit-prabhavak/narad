@@ -77,6 +77,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "endOfLine": "lf"
+  }
 }
