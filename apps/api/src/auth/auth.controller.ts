@@ -1,10 +1,10 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
   HttpCode,
   Inject,
+  Logger,
   Post,
   Req,
   Res,
@@ -18,11 +18,12 @@ import {
   LoginRequest,
   RegisterRequest,
 } from '@narad/contracts';
-import type { ZodType } from 'zod';
+import { parseBody } from '../common/parse-body';
 import { env } from '../config/env';
 import { CSRF_SECRET, csrfTokenFor, SkipCsrf } from '../csrf/csrf';
 import { RateLimitService } from '../redis/rate-limit.service';
 import { AuthService } from './auth.service';
+import { RecoveryService } from './recovery.service';
 import { type AuthedRequest, SessionGuard } from './session.guard';
 import { SessionService } from './session.service';
 import { readSessionCookie, SESSION_COOKIE } from './session.token';
@@ -36,27 +37,15 @@ const cookieBase = {
 
 const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
 
-function parseBody<T>(schema: ZodType<T>, body: unknown, message: string): T {
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    throw new BadRequestException({
-      code: 'VALIDATION_FAILED',
-      message,
-      issues: parsed.error.issues.map((i) => ({
-        path: i.path.join('.'),
-        message: i.message,
-      })),
-    });
-  }
-  return parsed.data;
-}
-
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly auth: AuthService,
     private readonly sessions: SessionService,
     private readonly limiter: RateLimitService,
+    private readonly recovery: RecoveryService,
     @Inject(CSRF_SECRET) private readonly csrfSecret: string,
   ) {}
 
@@ -65,9 +54,18 @@ export class AuthController {
   @HttpCode(201)
   async register(@Body() body: unknown, @Req() req: Request) {
     await this.limiter.hit(`register:ip:${req.ip ?? 'unknown'}`, 10, 3600);
-    return this.auth.register(
-      parseBody(RegisterRequest, body, 'Invalid registration data.'),
+    const input = parseBody(
+      RegisterRequest,
+      body,
+      'Invalid registration data.',
     );
+    const user = await this.auth.register(input);
+    void this.recovery
+      .sendVerification(user.id, input.email)
+      .catch((err: unknown) => {
+        this.logger.error(`Verification email failed: ${String(err)}`);
+      });
+    return user;
   }
 
   @Post('login')
@@ -121,11 +119,12 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const auth = req.auth;
-    if (!auth)
+    if (!auth) {
       throw new UnauthorizedException({
         code: 'UNAUTHENTICATED',
         message: 'Please sign in.',
       });
+    }
 
     await this.limiter.hit(`chpw:user:${auth.user.id}`, 5, 900);
     const input = parseBody(

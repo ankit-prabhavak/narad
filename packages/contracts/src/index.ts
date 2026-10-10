@@ -59,3 +59,19 @@ export const ChangePasswordRequest = z
     path: ['newPassword'],
   });
 export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequest>;
+
+export const VerifyEmailRequest = z.object({ token: z.string().min(20).max(200) }).strict();
+export type VerifyEmailRequest = z.infer<typeof VerifyEmailRequest>;
+
+export const ForgotPasswordRequest = z
+  .object({ email: z.string().trim().toLowerCase().email().max(254) })
+  .strict();
+export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordRequest>;
+
+export const ResetPasswordRequest = z
+  .object({
+    token: z.string().min(20).max(200),
+    newPassword: z.string().min(10).max(128),
+  })
+  .strict();
+export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequest>;
