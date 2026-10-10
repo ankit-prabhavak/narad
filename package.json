@@ -1,0 +1,21 @@
+{
+  "name": "narad",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run start:dev -w @narad/api",
+    "dev:web": "npm run dev -w @narad/web",
+    "build": "npm run build -w @narad/contracts && npm run build -w @narad/api && npm run build -w @narad/web",
+    "lint": "npm run lint --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "prettier": "3.9.9",
+    "typescript": "5.9.3"
+  }
+}
