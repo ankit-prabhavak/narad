@@ -47,3 +47,15 @@ export const LoginRequest = z
   })
   .strict();
 export type LoginRequest = z.infer<typeof LoginRequest>;
+
+export const ChangePasswordRequest = z
+  .object({
+    currentPassword: z.string().min(1).max(128),
+    newPassword: z.string().min(10).max(128),
+  })
+  .strict()
+  .refine((v) => v.currentPassword !== v.newPassword, {
+    message: 'New password must be different.',
+    path: ['newPassword'],
+  });
+export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequest>;

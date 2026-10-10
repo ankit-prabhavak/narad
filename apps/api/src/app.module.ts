@@ -6,8 +6,10 @@ import { randomUUID } from 'node:crypto';
 import { AuthModule } from './auth/auth.module';
 import { ApiExceptionFilter } from './common/api-exception.filter';
 import { env } from './config/env';
+import { CsrfModule } from './csrf/csrf.module';
 import { HealthController } from './health/health.controller';
 import { ReadinessController } from './health/readiness.controller';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { ReadinessController } from './health/readiness.controller';
       },
     }),
     MongooseModule.forRoot(env.MONGO_URI),
+    RedisModule,
+    CsrfModule,
     AuthModule,
   ],
   controllers: [HealthController, ReadinessController],

@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -59,6 +60,28 @@ export class AuthService {
       });
     }
     return toPublicUser(user);
+  }
+
+  async changePassword(
+    userId: string,
+    current: string,
+    next: string,
+  ): Promise<void> {
+    const user = await this.users
+      .findById(userId)
+      .select('+passwordHash')
+      .exec();
+    const valid = user
+      ? await argon2.verify(user.passwordHash, current)
+      : false;
+    if (!user || !valid) {
+      throw new ForbiddenException({
+        code: 'INVALID_CREDENTIALS',
+        message: 'Current password is incorrect.',
+      });
+    }
+    user.passwordHash = await argon2.hash(next, { type: argon2.argon2id });
+    await user.save();
   }
 
   private getDummyHash(): Promise<string> {

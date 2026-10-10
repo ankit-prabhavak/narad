@@ -42,6 +42,15 @@ export class SessionService {
     return { sessionId: session.id, user: toPublicUser(user) };
   }
 
+  async revokeAllForUser(userId: string): Promise<void> {
+    await this.sessions
+      .updateMany(
+        { userId: new Types.ObjectId(userId), revokedAt: null },
+        { revokedAt: new Date() },
+      )
+      .exec();
+  }
+
   async revoke(token: string): Promise<void> {
     await this.sessions
       .updateOne(
