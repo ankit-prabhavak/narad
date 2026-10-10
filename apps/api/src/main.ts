@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -10,6 +11,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
   app.use(helmet());
+  app.use(cookieParser());
   app.enableCors({ origin: env.WEB_ORIGIN, credentials: true });
   app.setGlobalPrefix('api/v1');
   app.enableShutdownHooks();

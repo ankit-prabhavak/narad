@@ -12,6 +12,7 @@ export const ApiError = z.object({
   code: z.string(),
   message: z.string(),
   requestId: z.string().optional(),
+  issues: z.array(z.object({ path: z.string(), message: z.string() })).optional(),
 });
 export type ApiError = z.infer<typeof ApiError>;
 
@@ -38,3 +39,11 @@ export const PublicUser = z.object({
   createdAt: z.string().datetime(),
 });
 export type PublicUser = z.infer<typeof PublicUser>;
+
+export const LoginRequest = z
+  .object({
+    email: z.string().trim().toLowerCase().email().max(254),
+    password: z.string().min(1).max(128),
+  })
+  .strict();
+export type LoginRequest = z.infer<typeof LoginRequest>;
