@@ -1,7 +1,10 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { LoggerModule } from 'nestjs-pino';
 import { randomUUID } from 'node:crypto';
+import { env } from './config/env';
 import { HealthController } from './health/health.controller';
+import { ReadinessController } from './health/readiness.controller';
 
 @Module({
   imports: [
@@ -19,7 +22,8 @@ import { HealthController } from './health/health.controller';
             : { target: 'pino-pretty' },
       },
     }),
+    MongooseModule.forRoot(env.MONGO_URI),
   ],
-  controllers: [HealthController],
+  controllers: [HealthController, ReadinessController],
 })
 export class AppModule {}
