@@ -121,3 +121,6 @@ export type ProfilePage = z.infer<typeof ProfilePage>;
 
 export const UpdatePrivacyRequest = z.object({ isPrivate: z.boolean() }).strict();
 export type UpdatePrivacyRequest = z.infer<typeof UpdatePrivacyRequest>;
+
+export const MeResponse = PublicUser.extend({ emailVerified: z.boolean() });
+export type MeResponse = z.infer<typeof MeResponse>;

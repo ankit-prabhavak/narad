@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type Model, Types } from 'mongoose';
-import type { PublicUser } from '@narad/contracts';
+import type { MeResponse } from '@narad/contracts';
 import { User } from '../users/user.schema';
 import { toPublicUser } from '../users/public-user';
 import { Session } from './session.schema';
@@ -28,7 +28,7 @@ export class SessionService {
 
   async resolve(
     token: string,
-  ): Promise<{ sessionId: string; user: PublicUser } | null> {
+  ): Promise<{ sessionId: string; user: MeResponse } | null> {
     const session = await this.sessions
       .findOne({
         tokenHash: hashToken(token),
@@ -39,7 +39,10 @@ export class SessionService {
     if (!session) return null;
     const user = await this.users.findById(session.userId).exec();
     if (!user) return null;
-    return { sessionId: session.id, user: toPublicUser(user) };
+    return {
+      sessionId: session.id,
+      user: { ...toPublicUser(user), emailVerified: user.emailVerified },
+    };
   }
 
   async revokeAllForUser(userId: string): Promise<void> {

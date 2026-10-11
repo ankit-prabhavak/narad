@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import type { Request } from 'express';
-import type { PublicUser } from '@narad/contracts';
+import type { MeResponse } from '@narad/contracts';
 import { SessionService } from './session.service';
 import { readSessionCookie } from './session.token';
 
 export type AuthedRequest = Request & {
-  auth?: { sessionId: string; user: PublicUser };
+  auth?: { sessionId: string; user: MeResponse };
 };
 
 @Injectable()
