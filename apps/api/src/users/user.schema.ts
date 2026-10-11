@@ -12,6 +12,9 @@ export class User {
   @Prop({ required: true, trim: true, maxlength: 50 })
   displayName!: string;
 
+  @Prop({ type: String, trim: true, maxlength: 160, default: '' })
+  bio!: string;
+
   @Prop({ required: true, select: false })
   passwordHash!: string;
 
@@ -27,6 +30,13 @@ export class User {
 
   @Prop({ type: String, enum: ['user', 'moderator', 'admin'], default: 'user' })
   role!: 'user' | 'moderator' | 'admin';
+
+  /** Derived from the follows collection; may be reconciled from it. */
+  @Prop({ type: Number, default: 0, min: 0 })
+  followersCount!: number;
+
+  @Prop({ type: Number, default: 0, min: 0 })
+  followingCount!: number;
 
   createdAt!: Date;
   updatedAt!: Date;

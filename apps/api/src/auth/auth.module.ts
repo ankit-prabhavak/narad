@@ -9,6 +9,7 @@ import { ChallengeSchema, Challenge } from './challenge.schema';
 import { ChallengeService } from './challenge.service';
 import { RecoveryController } from './recovery.controller';
 import { RecoveryService, WEB_ORIGIN } from './recovery.service';
+import { OptionalSessionGuard } from './optional-session.guard';
 import { SessionGuard } from './session.guard';
 import { Session, SessionSchema } from './session.schema';
 import { SessionService } from './session.service';
@@ -23,10 +24,12 @@ import { SessionService } from './session.service';
     ]),
   ],
   controllers: [AuthController, RecoveryController],
+  exports: [SessionService, SessionGuard, OptionalSessionGuard],
   providers: [
     AuthService,
     SessionService,
     SessionGuard,
+    OptionalSessionGuard,
     ChallengeService,
     RecoveryService,
     { provide: WEB_ORIGIN, useFactory: () => env.WEB_ORIGIN },

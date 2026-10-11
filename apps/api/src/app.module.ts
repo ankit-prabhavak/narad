@@ -10,6 +10,7 @@ import { CsrfModule } from './csrf/csrf.module';
 import { HealthController } from './health/health.controller';
 import { ReadinessController } from './health/readiness.controller';
 import { RedisModule } from './redis/redis.module';
+import { SocialModule } from './social/social.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { RedisModule } from './redis/redis.module';
     RedisModule,
     CsrfModule,
     AuthModule,
+    SocialModule,
   ],
   controllers: [HealthController, ReadinessController],
   providers: [{ provide: APP_FILTER, useClass: ApiExceptionFilter }],

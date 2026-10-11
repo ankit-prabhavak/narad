@@ -75,3 +75,37 @@ export const ResetPasswordRequest = z
   })
   .strict();
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordRequest>;
+
+export const UpdateProfileRequest = z
+  .object({
+    displayName: z.string().trim().min(1).max(50).optional(),
+    bio: z.string().trim().max(160).optional(),
+  })
+  .strict()
+  .refine((v) => Object.keys(v).length > 0, { message: 'Nothing to update.' });
+export type UpdateProfileRequest = z.infer<typeof UpdateProfileRequest>;
+
+export const PublicProfile = z.object({
+  id: z.string(),
+  handle: z.string(),
+  displayName: z.string(),
+  bio: z.string(),
+  followersCount: z.number(),
+  followingCount: z.number(),
+  createdAt: z.string().datetime(),
+  viewer: z.object({ following: z.boolean(), isSelf: z.boolean() }).nullable(),
+});
+export type PublicProfile = z.infer<typeof PublicProfile>;
+
+export const ProfileListItem = z.object({
+  id: z.string(),
+  handle: z.string(),
+  displayName: z.string(),
+});
+export type ProfileListItem = z.infer<typeof ProfileListItem>;
+
+export const ProfilePage = z.object({
+  items: z.array(ProfileListItem),
+  nextCursor: z.string().nullable(),
+});
+export type ProfilePage = z.infer<typeof ProfilePage>;
