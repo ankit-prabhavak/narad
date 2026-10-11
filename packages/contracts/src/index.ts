@@ -93,7 +93,16 @@ export const PublicProfile = z.object({
   followersCount: z.number(),
   followingCount: z.number(),
   createdAt: z.string().datetime(),
-  viewer: z.object({ following: z.boolean(), isSelf: z.boolean() }).nullable(),
+  isPrivate: z.boolean(),
+  viewer: z
+    .object({
+      following: z.boolean(),
+      isSelf: z.boolean(),
+      requested: z.boolean(),
+      blocking: z.boolean(),
+      muting: z.boolean(),
+    })
+    .nullable(),
 });
 export type PublicProfile = z.infer<typeof PublicProfile>;
 
@@ -109,3 +118,6 @@ export const ProfilePage = z.object({
   nextCursor: z.string().nullable(),
 });
 export type ProfilePage = z.infer<typeof ProfilePage>;
+
+export const UpdatePrivacyRequest = z.object({ isPrivate: z.boolean() }).strict();
+export type UpdatePrivacyRequest = z.infer<typeof UpdatePrivacyRequest>;

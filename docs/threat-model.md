@@ -26,3 +26,12 @@ Account credentials, session tokens, email addresses, private-account content, m
 
 ## Known gap (fix before beta)
 Registration returns 409 for an existing email, which reveals that the account exists. Planned fix: always answer 202 and email the owner.
+
+## Added in slice 1e-ii
+| Threat | Control | Test |
+|---|---|---|
+| Private-account content leaking to strangers | Follower and following lists limited to the owner and approved followers | 403 PRIVATE_ACCOUNT for strangers |
+| Learning that a blocker exists | Blocked users get 404 on profile, follow and lists | 404 for a blocked viewer |
+| Block evasion by re-following | Follow refused while a block exists; block removes follows both ways and pending requests | Counters drop on block |
+| Double-approving a request | Atomic findOneAndDelete claim before creating the follow | Second approve returns 404 |
+| Known gaps | Lists do not yet hide users who blocked the viewer; mutes not enforced until feeds and notifications exist; pending requests survive going public | Tracked for Phase 2 and 4 |

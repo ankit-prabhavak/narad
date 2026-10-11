@@ -7,12 +7,17 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { UpdateProfileRequest, Handle } from '@narad/contracts';
+import {
+  Handle,
+  UpdatePrivacyRequest,
+  UpdateProfileRequest,
+} from '@narad/contracts';
 import { OptionalSessionGuard } from '../auth/optional-session.guard';
 import { type AuthedRequest, SessionGuard } from '../auth/session.guard';
 import { parseBody } from '../common/parse-body';
@@ -34,12 +39,24 @@ function handleParam(raw: string): string {
   return parsed.success ? parsed.data : '__invalid__';
 }
 
+const pageArgs = (cursor?: string, limit?: string) => ({
+  cursor: cursor ?? null,
+  limit: Number(limit ?? 20),
+});
+
 @Controller()
 export class SocialController {
   constructor(
     private readonly social: SocialService,
     private readonly limiter: RateLimitService,
   ) {}
+
+  /** Signed-in user id, after counting one action against the per-user limit. */
+  private async actor(req: AuthedRequest): Promise<string> {
+    const me = requireUserId(req);
+    await this.limiter.hit(`social:user:${me}`, 200, 3600);
+    return me;
+  }
 
   @Get('users/:handle')
   @UseGuards(OptionalSessionGuard)
@@ -61,47 +78,141 @@ export class SocialController {
     return this.social.updateProfile(requireUserId(req), input);
   }
 
+  @Patch('me/privacy')
+  @UseGuards(SessionGuard)
+  updatePrivacy(@Body() body: unknown, @Req() req: AuthedRequest) {
+    const input = parseBody(
+      UpdatePrivacyRequest,
+      body,
+      'Invalid privacy data.',
+    );
+    return this.social.updatePrivacy(requireUserId(req), input.isPrivate);
+  }
+
   @Post('users/:handle/follow')
   @UseGuards(SessionGuard)
-  @HttpCode(204)
+  @HttpCode(200)
   async follow(@Param('handle') handle: string, @Req() req: AuthedRequest) {
-    const me = requireUserId(req);
-    await this.limiter.hit(`follow:user:${me}`, 100, 3600);
-    await this.social.follow(me, handleParam(handle));
+    const status = await this.social.follow(
+      await this.actor(req),
+      handleParam(handle),
+    );
+    return { status };
   }
 
   @Delete('users/:handle/follow')
   @UseGuards(SessionGuard)
   @HttpCode(204)
   async unfollow(@Param('handle') handle: string, @Req() req: AuthedRequest) {
-    const me = requireUserId(req);
-    await this.limiter.hit(`follow:user:${me}`, 100, 3600);
-    await this.social.unfollow(me, handleParam(handle));
+    await this.social.unfollow(await this.actor(req), handleParam(handle));
   }
 
   @Get('users/:handle/followers')
+  @UseGuards(OptionalSessionGuard)
   followers(
     @Param('handle') handle: string,
+    @Req() req: AuthedRequest,
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: string,
   ) {
+    const p = pageArgs(cursor, limit);
     return this.social.listFollowers(
       handleParam(handle),
-      cursor ?? null,
-      Number(limit ?? 20),
+      req.auth?.user.id ?? null,
+      p.cursor,
+      p.limit,
     );
   }
 
   @Get('users/:handle/following')
+  @UseGuards(OptionalSessionGuard)
   following(
     @Param('handle') handle: string,
+    @Req() req: AuthedRequest,
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: string,
   ) {
+    const p = pageArgs(cursor, limit);
     return this.social.listFollowing(
       handleParam(handle),
-      cursor ?? null,
-      Number(limit ?? 20),
+      req.auth?.user.id ?? null,
+      p.cursor,
+      p.limit,
     );
+  }
+
+  @Get('me/follow-requests')
+  @UseGuards(SessionGuard)
+  requests(
+    @Req() req: AuthedRequest,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const p = pageArgs(cursor, limit);
+    return this.social.listRequests(requireUserId(req), p.cursor, p.limit);
+  }
+
+  @Post('me/follow-requests/:handle/approve')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async approve(@Param('handle') handle: string, @Req() req: AuthedRequest) {
+    await this.social.approve(await this.actor(req), handleParam(handle));
+  }
+
+  @Delete('me/follow-requests/:handle')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async decline(@Param('handle') handle: string, @Req() req: AuthedRequest) {
+    await this.social.decline(await this.actor(req), handleParam(handle));
+  }
+
+  @Put('users/:handle/block')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async block(@Param('handle') handle: string, @Req() req: AuthedRequest) {
+    await this.social.block(await this.actor(req), handleParam(handle));
+  }
+
+  @Delete('users/:handle/block')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async unblock(@Param('handle') handle: string, @Req() req: AuthedRequest) {
+    await this.social.unblock(await this.actor(req), handleParam(handle));
+  }
+
+  @Put('users/:handle/mute')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async mute(@Param('handle') handle: string, @Req() req: AuthedRequest) {
+    await this.social.mute(await this.actor(req), handleParam(handle));
+  }
+
+  @Delete('users/:handle/mute')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async unmute(@Param('handle') handle: string, @Req() req: AuthedRequest) {
+    await this.social.unmute(await this.actor(req), handleParam(handle));
+  }
+
+  @Get('me/blocks')
+  @UseGuards(SessionGuard)
+  blocks(
+    @Req() req: AuthedRequest,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const p = pageArgs(cursor, limit);
+    return this.social.listBlocks(requireUserId(req), p.cursor, p.limit);
+  }
+
+  @Get('me/mutes')
+  @UseGuards(SessionGuard)
+  mutes(
+    @Req() req: AuthedRequest,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const p = pageArgs(cursor, limit);
+    return this.social.listMutes(requireUserId(req), p.cursor, p.limit);
   }
 }

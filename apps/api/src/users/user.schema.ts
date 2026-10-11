@@ -21,6 +21,9 @@ export class User {
   @Prop({ type: Boolean, default: false })
   emailVerified!: boolean;
 
+  @Prop({ type: Boolean, default: false })
+  isPrivate!: boolean;
+
   @Prop({
     type: [String],
     default: ['en'],
