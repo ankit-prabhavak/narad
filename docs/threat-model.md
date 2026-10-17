@@ -35,3 +35,13 @@ Registration returns 409 for an existing email, which reveals that the account e
 | Block evasion by re-following | Follow refused while a block exists; block removes follows both ways and pending requests | Counters drop on block |
 | Double-approving a request | Atomic findOneAndDelete claim before creating the follow | Second approve returns 404 |
 | Known gaps | Lists do not yet hide users who blocked the viewer; mutes not enforced until feeds and notifications exist; pending requests survive going public | Tracked for Phase 2 and 4 |
+
+## Added in slice 2a (posts)
+| Threat | Control | Test |
+|---|---|---|
+| Posting as someone else | Author taken from the session; bodies with `authorId` are rejected | Contract and service tests |
+| Reading private or blocked users' posts | Visibility check on single post and timeline; blocked gives 404, private gives 404 (post) or 403 (timeline) | Service tests |
+| Editing or deleting another user's post | Update filter includes `authorId`; no match gives 404 | Service test |
+| Oversized posts | 300 grapheme limit plus a 5000 code-unit ceiling | Contract tests |
+| Muted users in the feed | Muted authors removed before the query | Service test |
+| Known gaps | Feed reads at most the first 1000 follows; no spam or duplicate-post detection yet; no reports yet | Tracked |

@@ -9,6 +9,7 @@ import { env } from './config/env';
 import { CsrfModule } from './csrf/csrf.module';
 import { HealthController } from './health/health.controller';
 import { ReadinessController } from './health/readiness.controller';
+import { PostsModule } from './posts/posts.module';
 import { RedisModule } from './redis/redis.module';
 import { SocialModule } from './social/social.module';
 
@@ -33,6 +34,7 @@ import { SocialModule } from './social/social.module';
     CsrfModule,
     AuthModule,
     SocialModule,
+    PostsModule,
   ],
   controllers: [HealthController, ReadinessController],
   providers: [{ provide: APP_FILTER, useClass: ApiExceptionFilter }],

@@ -124,3 +124,40 @@ export type UpdatePrivacyRequest = z.infer<typeof UpdatePrivacyRequest>;
 
 export const MeResponse = PublicUser.extend({ emailVerified: z.boolean() });
 export type MeResponse = z.infer<typeof MeResponse>;
+
+const graphemeCount = (s: string): number =>
+  [...new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(s)].length;
+
+export const PostLanguage = z.enum(['en', 'hi']);
+export type PostLanguage = z.infer<typeof PostLanguage>;
+
+const PostText = z
+  .string()
+  .trim()
+  .min(1, 'Write something first.')
+  .max(5000)
+  .refine((s) => graphemeCount(s) <= 300, { message: 'Posts can be up to 300 characters.' });
+
+export const CreatePostRequest = z
+  .object({ text: PostText, language: PostLanguage.default('en') })
+  .strict();
+export type CreatePostRequest = z.infer<typeof CreatePostRequest>;
+
+export const EditPostRequest = z.object({ text: PostText }).strict();
+export type EditPostRequest = z.infer<typeof EditPostRequest>;
+
+export const PostDto = z.object({
+  id: z.string(),
+  text: z.string(),
+  language: PostLanguage,
+  createdAt: z.string().datetime(),
+  editedAt: z.string().datetime().nullable(),
+  author: z.object({ id: z.string(), handle: z.string(), displayName: z.string() }),
+});
+export type PostDto = z.infer<typeof PostDto>;
+
+export const PostPage = z.object({
+  items: z.array(PostDto),
+  nextCursor: z.string().nullable(),
+});
+export type PostPage = z.infer<typeof PostPage>;
