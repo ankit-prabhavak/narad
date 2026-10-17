@@ -1,17 +1,37 @@
 ﻿@import 'tailwindcss';
 
 :root {
-  --bg: #f7f6f2;
-  --bg-secondary: #eeece6;
-  --text: #252525;
-  --text-muted: #5c5a54;
-  --accent: #d65b3d;
-  --accent-strong: #b8472b;
-  --border: #e3e0d8;
+  --bg: #ffffff;
+  --bg-secondary: #f7f7f5;
+  --text: #111111;
+  --text-muted: #62625d;
+  --accent: #c2410c;
+  --accent-strong: #c2410c;
+  --border: #e7e7e3;
   --card: #ffffff;
-  --success: #1f7a4d;
+  --success: #15803d;
   --warning: #8a5a00;
-  --danger: #b3261e;
+  --danger: #c0352b;
+  --btn: #111111;
+  --btn-text: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0c0c0b;
+    --bg-secondary: #161614;
+    --text: #f3f3f0;
+    --text-muted: #9c9c95;
+    --accent: #fb923c;
+    --accent-strong: #fb923c;
+    --border: #2a2a27;
+    --card: #121211;
+    --success: #4ade80;
+    --warning: #e0b84a;
+    --danger: #ff7b72;
+    --btn: #f3f3f0;
+    --btn-text: #0c0c0b;
+  }
 }
 
 @theme inline {
@@ -26,20 +46,48 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
-  --font-sans:
-    var(--font-inter), var(--font-devanagari), system-ui, 'Segoe UI', 'Noto Sans', sans-serif;
+  --color-btn: var(--btn);
+  --color-btn-text: var(--btn-text);
+  --font-sans: var(--font-sans-latin), var(--font-sans-dev), system-ui, 'Segoe UI', sans-serif;
+  --font-mono: var(--font-mono-latin), ui-monospace, 'Cascadia Mono', Consolas, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
+  font-size: 16px;
   line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent-strong);
-  outline-offset: 2px;
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

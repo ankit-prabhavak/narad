@@ -1,161 +1,232 @@
 ﻿import Link from 'next/link';
-import { HeroIllustration } from '@/components/hero-illustration';
+import { Eyebrow } from '@/components/eyebrow';
 
 const primary =
-  'inline-block rounded-md bg-accent-strong px-5 py-2.5 font-medium text-white hover:opacity-90';
+  'inline-block rounded-md bg-btn px-5 py-2.5 font-medium text-btn-text transition-opacity hover:opacity-85';
 const secondary =
-  'inline-block rounded-md border border-border bg-card px-5 py-2.5 font-medium hover:bg-bg-secondary';
+  'inline-block rounded-md border border-border px-5 py-2.5 font-medium transition-colors hover:bg-bg-secondary';
 
-const features = [
-  {
-    title: 'Conversations across Indian languages',
-    body: 'Write in the language you think in. Read posts in the languages you choose.',
-  },
-  {
-    title: 'Discover people and ideas beyond your region',
-    body: 'Find voices from other states and communities, not just your own corner.',
-  },
-  {
-    title: 'Follow topics and communities that matter',
-    body: 'Follow people and topics, and keep the conversations you care about in one place.',
-  },
-  {
-    title: 'Your account, your controls',
-    body: 'Private accounts, blocking and muting are built in, and you decide who interacts with you.',
-  },
+const toc = [
+  ['how', 'How it works'],
+  ['today', 'Working today'],
+  ['next', 'Coming next'],
+  ['languages', 'Languages'],
+  ['faq', 'Questions'],
 ];
 
 const steps = [
-  { n: '1', title: 'Create your account', body: 'Sign up with your email and pick a handle.' },
-  {
-    n: '2',
-    title: 'Choose your languages',
-    body: 'Tell NARAD which languages you read and write.',
-  },
-  { n: '3', title: 'Join the conversation', body: 'Follow people, share your thoughts and reply.' },
+  ['Create an account', 'Sign up with an email and pick a handle. Verify the email we send you.'],
+  ['Make it yours', 'Add a bio in any script and decide whether your account is private.'],
+  ['Follow people', 'Open a profile and follow it. Private accounts approve each follower.'],
 ];
 
-const principles = [
-  'Respect people. Disagree with ideas, not with who someone is.',
-  'No harassment, threats or hate.',
-  'Report anything that breaks the rules. Reports are reviewed by people.',
-  'Decisions can be appealed.',
+const today = [
+  ['Accounts', 'Email verification, password reset, and sessions you can end at any time.'],
+  ['Profiles', 'A display name and a bio, written in any script.'],
+  ['Following', 'Follow, unfollow, and approve requests on private accounts.'],
+  ['Block and mute', 'Control who can see and reach you.'],
+];
+
+const next = [
+  ['Posts', 'Write, reply, like and repost.'],
+  ['Home feed', 'What the people you follow are saying, newest first.'],
+  ['Search', 'People, posts and hashtags.'],
+  ['Translation', 'Optional and clearly labelled. Your original words always stay.'],
 ];
 
 const languages = [
-  { name: 'English', native: 'English', live: true },
-  { name: 'Hindi', native: 'हिन्दी', live: true },
-  { name: 'Bengali', native: 'বাংলা', live: false },
-  { name: 'Tamil', native: 'தமிழ்', live: false },
-  { name: 'Telugu', native: 'తెలుగు', live: false },
-  { name: 'Marathi', native: 'मराठी', live: false },
-  { name: 'Gujarati', native: 'ગુજરાતી', live: false },
-  { name: 'Kannada', native: 'ಕನ್ನಡ', live: false },
-  { name: 'Malayalam', native: 'മലയാളം', live: false },
-  { name: 'Punjabi', native: 'ਪੰਜਾਬੀ', live: false },
-  { name: 'Odia', native: 'ଓଡ଼ିଆ', live: false },
-  { name: 'Assamese', native: 'অসমীয়া', live: false },
-  { name: 'Urdu', native: 'اردو', live: false },
+  'English',
+  'हिन्दी',
+  'বাংলা',
+  'தமிழ்',
+  'తెలుగు',
+  'मराठी',
+  'ગુજરાતી',
+  'ಕನ್ನಡ',
+  'മലയാളം',
+  'ਪੰਜਾਬੀ',
+  'ଓଡ଼ିଆ',
+  'অসমীয়া',
+  'اردو',
 ];
+
+const faq = [
+  [
+    'Can I post yet?',
+    'Not yet. Accounts, profiles and following work today. Posting is the next thing being built.',
+  ],
+  [
+    'Which languages work?',
+    'Text in any script is stored and shown correctly. The interface is English for now, and Hindi is planned next.',
+  ],
+  [
+    'Is my password stored?',
+    'No. Only a salted Argon2id hash is stored, so the password itself cannot be read back.',
+  ],
+  [
+    'Is NARAD run by the government?',
+    'No. It is an independent project and is not affiliated with any government body.',
+  ],
+  [
+    'How do I report a problem?',
+    'Reporting is being built. There is no working complaint channel yet, and the grievance page will say when there is.',
+  ],
+];
+
+function Section({
+  id,
+  n,
+  title,
+  children,
+}: {
+  id: string;
+  n: string;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section id={id} className="scroll-mt-24 border-t border-border py-14">
+      <Eyebrow>{n}</Eyebrow>
+      <h2 className="mt-2 text-3xl sm:text-4xl">{title}</h2>
+      <div className="mt-8">{children}</div>
+    </section>
+  );
+}
+
+function Cards({ items }: { items: string[][] }) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map(([title, body]) => (
+        <div key={title} className="rounded-lg border border-border bg-card p-5">
+          <h3 className="text-lg">{title}</h3>
+          <p className="mt-1 text-text-muted">{body}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
-    <>
-      <section className="mx-auto grid max-w-5xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-20">
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold leading-tight md:text-5xl">
-            India has a <span className="text-accent">lot</span> to say.
-          </h1>
-          <p className="text-lg text-text-muted">
-            One place for ideas, conversations, and voices in the languages you call home.
+    <div className="mx-auto flex max-w-6xl gap-12 px-5">
+      <aside className="hidden w-44 shrink-0 lg:block">
+        <nav aria-label="On this page" className="sticky top-24 py-14">
+          <p className="mb-3 font-mono text-xs uppercase tracking-widest text-text-muted">
+            On this page
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/register" className={primary}>
-              Join NARAD
-            </Link>
-            <Link href="/explore" className={secondary}>
-              Explore conversations
-            </Link>
-          </div>
-        </div>
-        <HeroIllustration />
-      </section>
-
-      <section className="border-y border-border bg-bg-secondary">
-        <div className="mx-auto max-w-5xl px-4 py-14">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {features.map((f) => (
-              <div key={f.title} className="rounded-md border border-border bg-card p-5">
-                <h2 className="text-lg font-semibold">{f.title}</h2>
-                <p className="mt-1 text-text-muted">{f.body}</p>
-              </div>
-            ))}
-          </div>
-          <p className="mt-4 text-sm text-text-muted">
-            NARAD is in early development. Some of what is described here is still being built.
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-5xl px-4 py-14">
-        <h2 className="text-2xl font-semibold">How NARAD works</h2>
-        <ol className="mt-6 grid gap-4 sm:grid-cols-3">
-          {steps.map((s) => (
-            <li key={s.n} className="rounded-md border border-border bg-card p-5">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-accent-strong font-semibold text-white">
-                {s.n}
-              </span>
-              <h3 className="mt-3 font-semibold">{s.title}</h3>
-              <p className="text-text-muted">{s.body}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section id="languages" className="border-y border-border bg-bg-secondary">
-        <div className="mx-auto max-w-5xl px-4 py-14">
-          <h2 className="text-2xl font-semibold">Languages</h2>
-          <p className="mt-2 max-w-2xl text-text-muted">
-            NARAD starts with English and Hindi and will add more Indian languages step by step.
-            Your original words are always kept exactly as you wrote them.
-          </p>
-          <ul className="mt-6 flex flex-wrap gap-2">
-            {languages.map((l) => (
-              <li
-                key={l.name}
-                className="rounded-full border border-border bg-card px-4 py-1.5 text-sm"
-                title={l.live ? l.name : l.name + ' (planned)'}
-              >
-                <span>{l.native}</span>
-                {l.live ? null : <span className="ml-2 text-xs text-text-muted">planned</span>}
+          <ul className="space-y-2 border-l border-border text-sm">
+            {toc.map(([id, label]) => (
+              <li key={id}>
+                <a
+                  href={'#' + id}
+                  className="-ml-px block border-l border-transparent pl-4 text-text-muted transition-colors hover:border-text hover:text-text"
+                >
+                  {label}
+                </a>
               </li>
             ))}
           </ul>
-        </div>
-      </section>
+        </nav>
+      </aside>
 
-      <section className="mx-auto max-w-5xl px-4 py-14">
-        <h2 className="text-2xl font-semibold">Safety principles</h2>
-        <ul className="mt-4 list-disc space-y-1 pl-5">
-          {principles.map((p) => (
-            <li key={p}>{p}</li>
-          ))}
-        </ul>
-        <p className="mt-4">
-          <Link href="/guidelines" className="text-accent-strong underline">
-            Read the community guidelines (draft)
-          </Link>
-        </p>
-      </section>
+      <div className="min-w-0 max-w-2xl flex-1 pb-20">
+        <section className="py-16 sm:py-24">
+          <Eyebrow>A social network for India</Eyebrow>
+          <h1 className="mt-4 text-5xl sm:text-6xl">Say it in the language you think in.</h1>
+          <p className="mt-6 max-w-xl text-lg text-text-muted">
+            NARAD lets people follow each other and talk in their own language. It is early, and
+            this page says plainly what works and what does not.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/register" className={primary}>
+              Create an account
+            </Link>
+            <Link href="/#how" className={secondary}>
+              How it works
+            </Link>
+          </div>
 
-      <section className="border-t border-border bg-bg-secondary">
-        <div className="mx-auto max-w-5xl space-y-4 px-4 py-14 text-center">
-          <h2 className="text-3xl font-semibold">Ready to say something?</h2>
-          <Link href="/register" className={primary}>
-            Join NARAD
-          </Link>
-        </div>
-      </section>
-    </>
+          <figure className="mt-12 overflow-hidden rounded-lg border border-border bg-bg-secondary">
+            <figcaption className="flex items-center justify-between border-b border-border px-4 py-2 font-mono text-xs text-text-muted">
+              <span>Example post</span>
+              <span>Demo content</span>
+            </figcaption>
+            <div className="space-y-4 p-5">
+              <div>
+                <p className="font-mono text-xs text-text-muted">@aarav_demo · हिन्दी</p>
+                <p className="mt-1 text-lg">बारिश में चाय का मज़ा ही कुछ और है।</p>
+              </div>
+              <div className="border-t border-border pt-4">
+                <p className="font-mono text-xs text-text-muted">@meera_demo · English</p>
+                <p className="mt-1 text-lg">
+                  Just moved to a new city. What is the one place I must eat at?
+                </p>
+              </div>
+            </div>
+          </figure>
+          <p className="mt-2 text-xs text-text-muted">
+            Illustration with fictional people. Posting is not available yet.
+          </p>
+        </section>
+
+        <Section id="how" n="01 · How it works" title="Three steps to your first follow.">
+          <ol className="space-y-3">
+            {steps.map(([title, body], i) => (
+              <li key={title} className="flex gap-4 rounded-lg border border-border bg-card p-5">
+                <span className="font-mono text-sm text-accent">0{i + 1}</span>
+                <div>
+                  <h3 className="text-lg">{title}</h3>
+                  <p className="mt-1 text-text-muted">{body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
+        <Section id="today" n="02 · Live" title="Working today.">
+          <Cards items={today} />
+        </Section>
+
+        <Section id="next" n="03 · In development" title="Coming next.">
+          <Cards items={next} />
+        </Section>
+
+        <Section id="languages" n="04 · Languages" title="Built for many scripts.">
+          <p className="mb-6 text-text-muted">
+            English and Hindi come first. The others follow, one at a time.
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {languages.map((l) => (
+              <li key={l} className="rounded-md border border-border bg-card px-3.5 py-1.5 text-lg">
+                {l}
+              </li>
+            ))}
+          </ul>
+        </Section>
+
+        <Section id="faq" n="05 · FAQ" title="Questions.">
+          <div className="divide-y divide-border border-y border-border">
+            {faq.map(([q, a]) => (
+              <details key={q} className="group py-4">
+                <summary className="flex items-center justify-between gap-4 font-semibold">
+                  {q}
+                  <span className="font-mono text-text-muted transition-transform group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-2 text-text-muted">{a}</p>
+              </details>
+            ))}
+          </div>
+          <p className="mt-6 text-sm text-text-muted">
+            More in the{' '}
+            <Link href="/guidelines" className="text-text underline underline-offset-4">
+              community guidelines
+            </Link>{' '}
+            (draft).
+          </p>
+        </Section>
+      </div>
+    </div>
   );
 }

@@ -10,14 +10,14 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <article className="mx-auto max-w-2xl space-y-4 px-4 py-12">
-      <h1 className="text-3xl font-semibold">{title}</h1>
+    <article className="mx-auto max-w-2xl px-5 py-16">
+      <h1 className="text-4xl">{title}</h1>
       {draft ? (
-        <p className="rounded-md border border-border bg-bg-secondary p-3 text-sm">
-          Draft for legal review. This text is not yet in effect and is not legal advice.
+        <p className="mt-4 text-sm text-text-muted">
+          Draft for legal review. Not yet in effect, and not legal advice.
         </p>
       ) : null}
-      <div className="space-y-3 leading-relaxed">{children}</div>
+      <div className="mt-8 space-y-4 text-lg leading-relaxed">{children}</div>
     </article>
   );
 }

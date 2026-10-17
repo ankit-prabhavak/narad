@@ -1,31 +1,37 @@
 ﻿import type { Metadata } from 'next';
-import { Inter, Noto_Sans_Devanagari } from 'next/font/google';
+import { Inter, JetBrains_Mono, Noto_Sans_Devanagari, Rozha_One } from 'next/font/google';
 import Link from 'next/link';
 import { Suspense, type ReactNode } from 'react';
-import { Logo } from '@/components/logo';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
+import { Wordmark } from '@/components/wordmark';
 import './globals.css';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' });
-const devanagari = Noto_Sans_Devanagari({
+const sans = Inter({ subsets: ['latin'], variable: '--font-sans-latin', display: 'swap' });
+const sansDev = Noto_Sans_Devanagari({
   subsets: ['devanagari', 'latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-devanagari',
+  variable: '--font-sans-dev',
+  display: 'swap',
+});
+const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono-latin', display: 'swap' });
+const wordmark = Rozha_One({
+  subsets: ['devanagari', 'latin'],
+  weight: '400',
+  variable: '--font-wordmark',
   display: 'swap',
 });
 
 export const metadata: Metadata = {
   title: { default: 'NARAD', template: '%s | NARAD' },
-  description: "India's conversations, connected. A multilingual social network for India.",
+  description: 'A multilingual social network for India.',
 };
 
 function HeaderFallback() {
   return (
-    <header className="border-b border-border bg-bg">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+    <header className="border-b border-border">
+      <div className="mx-auto flex max-w-6xl items-center px-5 py-3.5">
         <Link href="/" aria-label="NARAD home">
-          <Logo />
+          <Wordmark />
         </Link>
       </div>
     </header>
@@ -33,8 +39,9 @@ function HeaderFallback() {
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  const fonts = [sans, sansDev, mono, wordmark].map((f) => f.variable).join(' ');
   return (
-    <html lang="en" className={inter.variable + ' ' + devanagari.variable}>
+    <html lang="en" className={fonts}>
       <body className="flex min-h-screen flex-col">
         <Suspense fallback={<HeaderFallback />}>
           <SiteHeader />

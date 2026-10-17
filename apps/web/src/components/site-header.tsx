@@ -5,10 +5,9 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { api, clearCsrf } from '@/lib/api';
-import { Logo } from './logo';
+import { Wordmark } from './wordmark';
 
-const linkClass = 'rounded-md px-2 py-1 hover:bg-bg-secondary';
-const joinClass = 'rounded-md bg-accent-strong px-3 py-1.5 font-medium text-white hover:opacity-90';
+const quiet = 'text-text-muted transition-colors hover:text-text';
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -29,44 +28,50 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="border-b border-border bg-bg">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3">
-        <Link href="/" aria-label="NARAD home">
-          <Logo />
-        </Link>
-
-        <nav aria-label="Main" className="hidden items-center gap-1 text-sm sm:flex">
-          <Link href="/explore" className={linkClass}>
-            Explore
+    <header className="sticky top-0 z-40 border-b border-border bg-bg/90 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
+        <div className="flex items-center gap-8">
+          <Link href="/" aria-label="NARAD home">
+            <Wordmark />
           </Link>
-          <Link href="/#languages" className={linkClass}>
-            Languages
-          </Link>
-          <Link href="/about" className={linkClass}>
-            About
-          </Link>
-        </nav>
-
-        <div className="flex items-center gap-1 text-sm">
+          <nav aria-label="Main" className="hidden items-center gap-5 text-sm md:flex">
+            <Link href="/#how" className={quiet}>
+              How it works
+            </Link>
+            <Link href="/#languages" className={quiet}>
+              Languages
+            </Link>
+            <Link href="/guidelines" className={quiet}>
+              Guidelines
+            </Link>
+            <Link href="/#faq" className={quiet}>
+              FAQ
+            </Link>
+          </nav>
+        </div>
+        <div className="flex items-center gap-4 text-sm">
           {user === undefined ? null : user ? (
             <>
-              <Link href={'/u/' + user.handle} className={linkClass}>
-                Profile
+              <Link href={'/u/' + user.handle} className={quiet}>
+                @{user.handle}
               </Link>
-              <Link href="/settings" className={linkClass}>
+              <Link href="/settings" className={quiet}>
                 Settings
               </Link>
-              <button onClick={logout} className={linkClass}>
+              <button onClick={logout} className={quiet}>
                 Sign out
               </button>
             </>
           ) : (
             <>
-              <Link href="/login" className={linkClass}>
+              <Link href="/login" className={quiet}>
                 Sign in
               </Link>
-              <Link href="/register" className={joinClass}>
-                Join NARAD
+              <Link
+                href="/register"
+                className="rounded-md bg-btn px-3.5 py-1.5 font-medium text-btn-text transition-opacity hover:opacity-85"
+              >
+                Get started
               </Link>
             </>
           )}

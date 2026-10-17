@@ -1,9 +1,8 @@
 ﻿import Link from 'next/link';
-import { Logo } from './logo';
 
 const links = [
   { href: '/about', label: 'About' },
-  { href: '/guidelines', label: 'Community guidelines' },
+  { href: '/guidelines', label: 'Guidelines' },
   { href: '/privacy', label: 'Privacy' },
   { href: '/terms', label: 'Terms' },
   { href: '/grievance', label: 'Grievance' },
@@ -11,22 +10,12 @@ const links = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border bg-bg-secondary">
-      <div className="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <Logo />
-          <p className="text-sm text-text-muted">India&apos;s conversations, connected.</p>
-          <p className="text-xs text-text-muted">
-            NARAD is an independent project and is not affiliated with any government body.
-          </p>
-        </div>
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+    <footer className="border-t border-border">
+      <div className="mx-auto flex max-w-3xl flex-col gap-3 px-5 py-8 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
+        <p>An independent project. Not affiliated with any government body.</p>
+        <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-1">
           {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-text-muted hover:text-text hover:underline"
-            >
+            <Link key={l.href} href={l.href} className="transition-colors hover:text-text">
               {l.label}
             </Link>
           ))}
