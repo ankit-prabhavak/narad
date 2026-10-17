@@ -26,7 +26,8 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
-  --font-sans: system-ui, 'Segoe UI', 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
+  --font-sans:
+    var(--font-inter), var(--font-devanagari), system-ui, 'Segoe UI', 'Noto Sans', sans-serif;
 }
 
 body {
@@ -45,5 +46,6 @@ body {
   * {
     animation: none !important;
     transition: none !important;
+    scroll-behavior: auto !important;
   }
 }
