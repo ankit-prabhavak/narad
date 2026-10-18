@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { RegisterRequest } from '@narad/contracts';
@@ -31,7 +31,7 @@ export default function RegisterPage() {
         { csrf: false },
       );
       clearCsrf();
-      router.push('/account');
+      router.push('/home');
     } catch (err) {
       setFormError(err instanceof ApiRequestError ? err.message : 'Could not create the account.');
     }

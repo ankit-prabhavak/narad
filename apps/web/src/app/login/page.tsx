@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoginRequest } from '@narad/contracts';
@@ -25,7 +25,7 @@ export default function LoginPage() {
     try {
       await api('POST', '/auth/login', values, { csrf: false });
       clearCsrf();
-      router.push('/account');
+      router.push('/home');
     } catch (err) {
       setFormError(err instanceof ApiRequestError ? err.message : 'Could not sign in.');
     }

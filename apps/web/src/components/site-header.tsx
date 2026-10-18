@@ -35,23 +35,34 @@ export function SiteHeader() {
             <Wordmark />
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-5 text-sm md:flex">
-            <Link href="/#how" className={quiet}>
-              How it works
-            </Link>
-            <Link href="/#languages" className={quiet}>
-              Languages
-            </Link>
+            {user ? (
+              <Link href="/home" className={quiet}>
+                Home
+              </Link>
+            ) : (
+              <>
+                <Link href="/#how" className={quiet}>
+                  How it works
+                </Link>
+                <Link href="/#languages" className={quiet}>
+                  Languages
+                </Link>
+                <Link href="/#faq" className={quiet}>
+                  FAQ
+                </Link>
+              </>
+            )}
             <Link href="/guidelines" className={quiet}>
               Guidelines
-            </Link>
-            <Link href="/#faq" className={quiet}>
-              FAQ
             </Link>
           </nav>
         </div>
         <div className="flex items-center gap-4 text-sm">
           {user === undefined ? null : user ? (
             <>
+              <Link href="/home" className={quiet + ' md:hidden'}>
+                Home
+              </Link>
               <Link href={'/u/' + user.handle} className={quiet}>
                 @{user.handle}
               </Link>
