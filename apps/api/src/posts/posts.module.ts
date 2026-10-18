@@ -5,6 +5,7 @@ import { Block, BlockSchema } from '../social/block.schema';
 import { Follow, FollowSchema } from '../social/follow.schema';
 import { Mute, MuteSchema } from '../social/mute.schema';
 import { UsersModule } from '../users/users.module';
+import { Interaction, InteractionSchema } from './interaction.schema';
 import { Post, PostSchema } from './post.schema';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
@@ -15,6 +16,7 @@ import { PostsService } from './posts.service';
     AuthModule,
     MongooseModule.forFeature([
       { name: Post.name, schema: PostSchema },
+      { name: Interaction.name, schema: InteractionSchema },
       { name: Follow.name, schema: FollowSchema },
       { name: Block.name, schema: BlockSchema },
       { name: Mute.name, schema: MuteSchema },

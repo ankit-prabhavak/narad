@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   UnauthorizedException,
@@ -48,7 +49,7 @@ export class PostsController {
 
   private async actor(req: AuthedRequest): Promise<string> {
     const me = requireUserId(req);
-    await this.limiter.hit(`posts:user:${me}`, 120, 3600);
+    await this.limiter.hit(`posts:user:${me}`, 300, 3600);
     return me;
   }
 
@@ -86,6 +87,73 @@ export class PostsController {
   @HttpCode(204)
   async remove(@Param('id') id: string, @Req() req: AuthedRequest) {
     await this.posts.remove(await this.actor(req), id);
+  }
+
+  @Post('posts/:id/replies')
+  @UseGuards(SessionGuard)
+  @HttpCode(201)
+  async reply(
+    @Param('id') id: string,
+    @Body() body: unknown,
+    @Req() req: AuthedRequest,
+  ) {
+    const me = await this.actor(req);
+    return this.posts.reply(
+      me,
+      id,
+      parseBody(CreatePostRequest, body, 'Invalid comment.'),
+    );
+  }
+
+  @Get('posts/:id/replies')
+  @UseGuards(OptionalSessionGuard)
+  replies(
+    @Param('id') id: string,
+    @Req() req: AuthedRequest,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const p = pageArgs(cursor, limit);
+    return this.posts.replies(id, req.auth?.user.id ?? null, p.cursor, p.limit);
+  }
+
+  @Put('posts/:id/like')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async like(@Param('id') id: string, @Req() req: AuthedRequest) {
+    await this.posts.setLike(await this.actor(req), id, true);
+  }
+
+  @Delete('posts/:id/like')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async unlike(@Param('id') id: string, @Req() req: AuthedRequest) {
+    await this.posts.setLike(await this.actor(req), id, false);
+  }
+
+  @Put('posts/:id/bookmark')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async bookmark(@Param('id') id: string, @Req() req: AuthedRequest) {
+    await this.posts.setBookmark(await this.actor(req), id, true);
+  }
+
+  @Delete('posts/:id/bookmark')
+  @UseGuards(SessionGuard)
+  @HttpCode(204)
+  async unbookmark(@Param('id') id: string, @Req() req: AuthedRequest) {
+    await this.posts.setBookmark(await this.actor(req), id, false);
+  }
+
+  @Get('me/bookmarks')
+  @UseGuards(SessionGuard)
+  bookmarks(
+    @Req() req: AuthedRequest,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const p = pageArgs(cursor, limit);
+    return this.posts.bookmarks(requireUserId(req), p.cursor, p.limit);
   }
 
   @Get('users/:handle/posts')

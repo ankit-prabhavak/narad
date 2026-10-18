@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { EditPostRequest, type PostDto } from '@narad/contracts';
+import { Bookmark, Heart, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ApiRequestError, api } from '@/lib/api';
@@ -56,8 +57,31 @@ export function PostCard({
     }
   }
 
+  async function toggle(kind: 'like' | 'bookmark') {
+    const viewer = post.viewer;
+    if (!viewer) return;
+    const on = kind === 'like' ? viewer.liked : viewer.bookmarked;
+    setBusy(true);
+    setError(null);
+    try {
+      await api(on ? 'DELETE' : 'PUT', '/posts/' + post.id + '/' + kind);
+      onChanged({
+        ...post,
+        likeCount: kind === 'like' ? post.likeCount + (on ? -1 : 1) : post.likeCount,
+        viewer: { ...viewer, [kind === 'like' ? 'liked' : 'bookmarked']: !on },
+      });
+    } catch (err) {
+      setError(err instanceof ApiRequestError ? err.message : 'That did not work.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const remaining = MAX - graphemeCount(draft);
   const action = 'text-sm text-text-muted transition-colors hover:text-text';
+  const iconBtn =
+    'inline-flex items-center gap-1.5 text-sm text-text-muted transition-colors hover:text-text disabled:opacity-60';
+  const viewer = post.viewer;
 
   return (
     <article className="rounded-lg border border-border bg-card p-4">
@@ -69,13 +93,13 @@ export function PostCard({
         <span className="text-text-muted" aria-hidden="true">
           ·
         </span>
-        <time
-          dateTime={post.createdAt}
+        <Link
+          href={'/p/' + post.id}
           title={new Date(post.createdAt).toLocaleString()}
-          className="text-text-muted"
+          className="text-text-muted hover:underline"
         >
-          {timeAgo(post.createdAt)}
-        </time>
+          <time dateTime={post.createdAt}>{timeAgo(post.createdAt)}</time>
+        </Link>
         {post.editedAt ? <span className="text-text-muted">· edited</span> : null}
         <span className="ml-auto rounded border border-border px-1.5 font-mono text-xs text-text-muted">
           {post.language}
@@ -134,32 +158,70 @@ export function PostCard({
         </p>
       ) : null}
 
-      {isOwn && !editing ? (
-        <div className="mt-3 flex items-center gap-4">
-          {confirming ? (
-            <>
-              <span className="text-sm">Delete this post?</span>
-              <button
-                onClick={remove}
-                disabled={busy}
-                className="text-sm font-semibold text-danger"
-              >
-                Yes, delete
-              </button>
-              <button onClick={() => setConfirming(false)} disabled={busy} className={action}>
-                No
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={() => setEditing(true)} className={action}>
-                Edit
-              </button>
-              <button onClick={() => setConfirming(true)} className={action}>
-                Delete
-              </button>
-            </>
-          )}
+      {!editing ? (
+        <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <Link
+            href={'/p/' + post.id}
+            className={iconBtn}
+            aria-label={post.replyCount + ' comments'}
+          >
+            <MessageCircle size={18} aria-hidden="true" />
+            {post.replyCount}
+          </Link>
+          <button
+            onClick={() => toggle('like')}
+            disabled={busy || !viewer}
+            aria-pressed={viewer?.liked ?? false}
+            aria-label={'Like, ' + post.likeCount + ' likes'}
+            title={viewer ? undefined : 'Sign in to like'}
+            className={iconBtn + (viewer?.liked ? ' !text-accent' : '')}
+          >
+            <Heart size={18} aria-hidden="true" fill={viewer?.liked ? 'currentColor' : 'none'} />
+            {post.likeCount}
+          </button>
+          <button
+            onClick={() => toggle('bookmark')}
+            disabled={busy || !viewer}
+            aria-pressed={viewer?.bookmarked ?? false}
+            aria-label="Bookmark"
+            title={viewer ? undefined : 'Sign in to bookmark'}
+            className={iconBtn + (viewer?.bookmarked ? ' !text-accent' : '')}
+          >
+            <Bookmark
+              size={18}
+              aria-hidden="true"
+              fill={viewer?.bookmarked ? 'currentColor' : 'none'}
+            />
+          </button>
+
+          {isOwn ? (
+            <span className="ml-auto flex items-center gap-4">
+              {confirming ? (
+                <>
+                  <span className="text-sm">Delete this post?</span>
+                  <button
+                    onClick={remove}
+                    disabled={busy}
+                    className="text-sm font-semibold text-danger"
+                  >
+                    Yes, delete
+                  </button>
+                  <button onClick={() => setConfirming(false)} disabled={busy} className={action}>
+                    No
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => setEditing(true)} className={action}>
+                    Edit
+                  </button>
+                  <button onClick={() => setConfirming(true)} className={action}>
+                    Delete
+                  </button>
+                </>
+              )}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </article>

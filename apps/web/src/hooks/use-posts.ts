@@ -71,6 +71,7 @@ export function usePosts(base: string) {
       setAttempt((a) => a + 1);
     },
     prepend: (post: PostDto) => setItems((prev) => [post, ...prev]),
+    append: (post: PostDto) => setItems((prev) => [...prev, post]),
     replace: (post: PostDto) => setItems((prev) => prev.map((p) => (p.id === post.id ? post : p))),
     remove: (id: string) => setItems((prev) => prev.filter((p) => p.id !== id)),
   };

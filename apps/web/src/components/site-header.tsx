@@ -36,9 +36,14 @@ export function SiteHeader() {
           </Link>
           <nav aria-label="Main" className="hidden items-center gap-5 text-sm md:flex">
             {user ? (
-              <Link href="/home" className={quiet}>
-                Home
-              </Link>
+              <>
+                <Link href="/home" className={quiet}>
+                  Home
+                </Link>
+                <Link href="/bookmarks" className={quiet}>
+                  Bookmarks
+                </Link>
+              </>
             ) : (
               <>
                 <Link href="/#how" className={quiet}>
@@ -62,6 +67,9 @@ export function SiteHeader() {
             <>
               <Link href="/home" className={quiet + ' md:hidden'}>
                 Home
+              </Link>
+              <Link href="/bookmarks" className={quiet + ' md:hidden'}>
+                Bookmarks
               </Link>
               <Link href={'/u/' + user.handle} className={quiet}>
                 @{user.handle}

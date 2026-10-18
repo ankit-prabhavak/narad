@@ -8,7 +8,17 @@ import { Button } from './button';
 
 const MAX = 300;
 
-export function Composer({ onPosted }: { onPosted: (post: PostDto) => void }) {
+export function Composer({
+  onPosted,
+  endpoint = '/posts',
+  placeholder,
+  submitLabel = 'Post',
+}: {
+  onPosted: (post: PostDto) => void;
+  endpoint?: string;
+  placeholder?: string;
+  submitLabel?: string;
+}) {
   const [text, setText] = useState('');
   const [language, setLanguage] = useState<PostLanguage>('en');
   const [busy, setBusy] = useState(false);
@@ -16,6 +26,8 @@ export function Composer({ onPosted }: { onPosted: (post: PostDto) => void }) {
 
   const remaining = MAX - graphemeCount(text);
   const blank = text.trim().length === 0;
+  const hint =
+    placeholder ?? (language === 'hi' ? 'आप क्या सोच रहे हैं?' : 'What is on your mind?');
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -27,7 +39,7 @@ export function Composer({ onPosted }: { onPosted: (post: PostDto) => void }) {
     setBusy(true);
     setError(null);
     try {
-      const post = await api<PostDto>('POST', '/posts', parsed.data);
+      const post = await api<PostDto>('POST', endpoint, parsed.data);
       setText('');
       onPosted(post);
     } catch (err) {
@@ -39,16 +51,16 @@ export function Composer({ onPosted }: { onPosted: (post: PostDto) => void }) {
 
   return (
     <form onSubmit={submit} className="rounded-lg border border-border bg-card p-4">
-      <label htmlFor="composer" className="sr-only">
+      <label htmlFor={'composer-' + endpoint} className="sr-only">
         Write a post
       </label>
       <textarea
-        id="composer"
+        id={'composer-' + endpoint}
         lang={language}
         rows={3}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={language === 'hi' ? 'आप क्या सोच रहे हैं?' : 'What is on your mind?'}
+        placeholder={hint}
         className="w-full resize-none bg-transparent text-lg outline-none placeholder:text-text-muted"
       />
       {error ? (
@@ -58,11 +70,11 @@ export function Composer({ onPosted }: { onPosted: (post: PostDto) => void }) {
       ) : null}
       <div className="flex items-center justify-between gap-3 border-t border-border pt-3">
         <div className="flex items-center gap-2 text-sm">
-          <label htmlFor="post-language" className="text-text-muted">
+          <label htmlFor={'lang-' + endpoint} className="text-text-muted">
             Language
           </label>
           <select
-            id="post-language"
+            id={'lang-' + endpoint}
             value={language}
             onChange={(e) => setLanguage(e.target.value as PostLanguage)}
             className="rounded-md border border-border bg-card px-2 py-1"
@@ -79,7 +91,7 @@ export function Composer({ onPosted }: { onPosted: (post: PostDto) => void }) {
             {remaining}
           </span>
           <Button type="submit" disabled={busy || blank || remaining < 0}>
-            {busy ? 'Posting...' : 'Post'}
+            {busy ? 'Posting...' : submitLabel}
           </Button>
         </div>
       </div>

@@ -152,7 +152,11 @@ export const PostDto = z.object({
   language: PostLanguage,
   createdAt: z.string().datetime(),
   editedAt: z.string().datetime().nullable(),
+  parentId: z.string().nullable(),
+  likeCount: z.number(),
+  replyCount: z.number(),
   author: z.object({ id: z.string(), handle: z.string(), displayName: z.string() }),
+  viewer: z.object({ liked: z.boolean(), bookmarked: z.boolean() }).nullable(),
 });
 export type PostDto = z.infer<typeof PostDto>;
 
