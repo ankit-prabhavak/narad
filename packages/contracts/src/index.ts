@@ -94,6 +94,7 @@ export const PublicProfile = z.object({
   followingCount: z.number(),
   createdAt: z.string().datetime(),
   isPrivate: z.boolean(),
+  avatarUrl: z.string().nullable(),
   viewer: z
     .object({
       following: z.boolean(),
@@ -155,7 +156,12 @@ export const PostDto = z.object({
   parentId: z.string().nullable(),
   likeCount: z.number(),
   replyCount: z.number(),
-  author: z.object({ id: z.string(), handle: z.string(), displayName: z.string() }),
+  author: z.object({
+    id: z.string(),
+    handle: z.string(),
+    displayName: z.string(),
+    avatarUrl: z.string().nullable(),
+  }),
   viewer: z.object({ liked: z.boolean(), bookmarked: z.boolean() }).nullable(),
 });
 export type PostDto = z.infer<typeof PostDto>;

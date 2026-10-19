@@ -15,6 +15,10 @@ export class User {
   @Prop({ type: String, trim: true, maxlength: 160, default: '' })
   bio!: string;
 
+  /** Storage key of the profile picture, or null. The public URL is derived from it. */
+  @Prop({ type: String, default: null })
+  avatarKey!: string | null;
+
   @Prop({ required: true, select: false })
   passwordHash!: string;
 

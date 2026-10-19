@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AuthShell } from '@/components/auth-shell';
+import { AvatarUploader } from '@/components/avatar-uploader';
 import { Button } from '@/components/button';
 import { Field } from '@/components/field';
 import { ApiRequestError, api } from '@/lib/api';
@@ -62,6 +63,7 @@ export default function SettingsPage() {
       {!profile && !error ? <p className="text-text-muted">Loading...</p> : null}
       {profile ? (
         <div className="space-y-6">
+          <AvatarUploader profile={profile} onChange={setProfile} />
           <form onSubmit={handleSubmit(onSave)} className="space-y-4" noValidate>
             <Field
               label="Display name"

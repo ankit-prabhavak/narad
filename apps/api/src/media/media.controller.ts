@@ -1,0 +1,29 @@
+import {
+  Controller,
+  Get,
+  Header,
+  Inject,
+  NotFoundException,
+  Param,
+  StreamableFile,
+} from '@nestjs/common';
+import { type ObjectStorage, STORAGE } from './storage';
+
+const USER_ID = /^[a-f0-9]{24}$/;
+const FILE = /^[a-f0-9]{32}\.webp$/;
+
+@Controller('media')
+export class MediaController {
+  constructor(@Inject(STORAGE) private readonly storage: ObjectStorage) {}
+
+  @Get('avatars/:userId/:file')
+  @Header('Cache-Control', 'public, max-age=31536000, immutable')
+  async avatar(@Param('userId') userId: string, @Param('file') file: string) {
+    const missing = () =>
+      new NotFoundException({ code: 'NOT_FOUND', message: 'Not found.' });
+    if (!USER_ID.test(userId) || !FILE.test(file)) throw missing();
+    const data = await this.storage.get(`avatars/${userId}/${file}`);
+    if (!data) throw missing();
+    return new StreamableFile(data, { type: 'image/webp' });
+  }
+}

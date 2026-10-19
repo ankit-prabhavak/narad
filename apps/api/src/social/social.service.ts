@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
@@ -14,6 +14,7 @@ import type {
   UpdateProfileRequest,
 } from '@narad/contracts';
 import { User } from '../users/user.schema';
+import { avatarUrl } from '../media/avatar-url';
 import { Block } from './block.schema';
 import { FollowRequest } from './follow-request.schema';
 import { Follow } from './follow.schema';
@@ -39,6 +40,7 @@ const SELF_VIEWER = {
 };
 
 interface UserLike {
+  avatarKey?: string | null;
   id: string;
   handle: string;
   displayName: string;
@@ -75,6 +77,7 @@ export class SocialService {
       displayName: u.displayName,
       bio: u.bio,
       isPrivate: u.isPrivate,
+      avatarUrl: avatarUrl(u.avatarKey),
       followersCount: u.followersCount,
       followingCount: u.followingCount,
       createdAt: u.createdAt.toISOString(),

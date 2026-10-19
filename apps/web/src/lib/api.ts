@@ -16,14 +16,15 @@ export const clearCsrf = () => {
 
 async function send(method: string, path: string, body?: unknown, token?: string | null) {
   const headers: Record<string, string> = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
   if (token) headers['x-csrf-token'] = token;
 
   const res = await fetch(`/api/v1${path}`, {
     method,
     headers,
     credentials: 'same-origin',
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
   });
 
   const isJson = res.headers.get('content-type')?.includes('application/json') ?? false;

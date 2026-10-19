@@ -1,4 +1,4 @@
-import {
+﻿import {
   BadRequestException,
   ForbiddenException,
   Injectable,
@@ -11,6 +11,7 @@ import { Block } from '../social/block.schema';
 import { Follow } from '../social/follow.schema';
 import { Mute } from '../social/mute.schema';
 import { User } from '../users/user.schema';
+import { avatarUrl } from '../media/avatar-url';
 import { Interaction } from './interaction.schema';
 import { Post } from './post.schema';
 
@@ -165,7 +166,12 @@ export class PostsService {
         parentId: r.parentId ? r.parentId.toString() : null,
         likeCount: r.likeCount,
         replyCount: r.replyCount,
-        author: { id: a.id, handle: a.handle, displayName: a.displayName },
+        author: {
+          id: a.id,
+          handle: a.handle,
+          displayName: a.displayName,
+          avatarUrl: avatarUrl(a.avatarKey),
+        },
         viewer: viewerId
           ? (states.get(r.id) ?? { liked: false, bookmarked: false })
           : null,

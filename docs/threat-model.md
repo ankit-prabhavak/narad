@@ -45,3 +45,13 @@ Registration returns 409 for an existing email, which reveals that the account e
 | Oversized posts | 300 grapheme limit plus a 5000 code-unit ceiling | Contract tests |
 | Muted users in the feed | Muted authors removed before the query | Service test |
 | Known gaps | Feed reads at most the first 1000 follows; no spam or duplicate-post detection yet; no reports yet | Tracked |
+
+## Added in slice 2d-i (images)
+| Threat | Control | Test |
+|---|---|---|
+| Malicious or disguised files | Real format check with sharp (JPEG, PNG, WebP only); the browser's filename and type are ignored; output is always a re-encoded WebP | Image service tests |
+| Decompression bombs | Input limited to 40 million pixels and 5 MB | Image service test, 413 live check |
+| Location leaks through photo metadata | All metadata removed on re-encode | EXIF test |
+| Path traversal | Server-generated keys, strict URL patterns, resolved path must stay inside the storage root | Storage and live tests |
+| Upload abuse | Session and CSRF required before the body is parsed; 20 uploads per hour per user | Live check |
+| Known gaps | Avatars are public for private accounts; no content-safety scanning or takedown tooling yet; orphan files after a crash need a cleanup job; production needs S3 storage added | Tracked, legal review before launch |

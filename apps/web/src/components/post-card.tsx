@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { ApiRequestError, api } from '@/lib/api';
 import { graphemeCount, timeAgo } from '@/lib/text';
+import { Avatar } from './avatar';
 import { Button } from './button';
 
 const MAX = 300;
@@ -86,6 +87,12 @@ export function PostCard({
   return (
     <article className="rounded-lg border border-border bg-card p-4">
       <header className="flex flex-wrap items-baseline gap-x-2 text-sm">
+        <Avatar
+          url={post.author.avatarUrl}
+          name={post.author.displayName}
+          size={28}
+          className="self-center"
+        />
         <Link href={'/u/' + post.author.handle} className="font-semibold hover:underline">
           {post.author.displayName}
         </Link>

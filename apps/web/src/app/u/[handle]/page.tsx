@@ -1,9 +1,10 @@
-'use client';
+﻿'use client';
 
 import type { PublicProfile } from '@narad/contracts';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useState } from 'react';
+import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/button';
 import { PostList } from '@/components/post-list';
 import { usePosts } from '@/hooks/use-posts';
@@ -80,6 +81,7 @@ function Profile() {
   return (
     <div>
       <div className="rounded-lg border border-border bg-card p-5">
+        <Avatar url={profile.avatarUrl} name={profile.displayName} size={80} className="mb-3" />
         <h1 className="text-3xl">{profile.displayName}</h1>
         <p className="text-text-muted">
           @{profile.handle}
