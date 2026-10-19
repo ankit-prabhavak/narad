@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from '../auth/auth.module';
+import { MediaModule } from '../media/media.module';
 import { Block, BlockSchema } from '../social/block.schema';
 import { Follow, FollowSchema } from '../social/follow.schema';
 import { Mute, MuteSchema } from '../social/mute.schema';
@@ -14,6 +15,7 @@ import { PostsService } from './posts.service';
   imports: [
     UsersModule,
     AuthModule,
+    MediaModule,
     MongooseModule.forFeature([
       { name: Post.name, schema: PostSchema },
       { name: Interaction.name, schema: InteractionSchema },

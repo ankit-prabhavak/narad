@@ -19,6 +19,21 @@ export class Post {
   @Prop({ type: String, enum: ['en', 'hi'], default: 'en' })
   language!: 'en' | 'hi';
 
+  /** At most 4 images, embedded because the list is small and always read with the post. */
+  @Prop({
+    type: [
+      {
+        _id: false,
+        key: { type: String, required: true },
+        width: { type: Number, required: true },
+        height: { type: Number, required: true },
+      },
+    ],
+    default: [],
+    validate: (v: unknown[]) => v.length <= 4,
+  })
+  images!: Array<{ key: string; width: number; height: number }>;
+
   /** Derived from the interactions collection; may be reconciled from it. */
   @Prop({ type: Number, default: 0, min: 0 })
   likeCount!: number;

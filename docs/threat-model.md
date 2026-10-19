@@ -55,3 +55,12 @@ Registration returns 409 for an existing email, which reveals that the account e
 | Path traversal | Server-generated keys, strict URL patterns, resolved path must stay inside the storage root | Storage and live tests |
 | Upload abuse | Session and CSRF required before the body is parsed; 20 uploads per hour per user | Live check |
 | Known gaps | Avatars are public for private accounts; no content-safety scanning or takedown tooling yet; orphan files after a crash need a cleanup job; production needs S3 storage added | Tracked, legal review before launch |
+
+## Added in slice 2d-ii (post images)
+| Threat | Control | Test |
+|---|---|---|
+| Attaching someone else's image, or reusing one | Images are claimed atomically with the owner and "unattached" in the filter; a count mismatch releases everything and fails | Media service tests, live check |
+| Storage abuse through unattached uploads | 60 uploads per hour, at most 20 unattached images per user, hourly purge of anything older than 24 hours | Unit tests, live check |
+| Images outliving a deleted post | Deleting a post deletes its files and records | Service test, live check |
+| Oversized or disguised files | Same checks as avatars, output re-encoded to WebP, longest side 1600px, metadata removed | Image tests |
+| Known gaps | URLs are unguessable but not signed, so anyone with a URL can open it, including images from private accounts; no alt text yet; no content-safety scanning or takedown tooling (required before public launch); deletion currently destroys evidence, revisit with moderation | Tracked |

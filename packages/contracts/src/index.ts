@@ -139,13 +139,38 @@ const PostText = z
   .max(5000)
   .refine((s) => graphemeCount(s) <= 300, { message: 'Posts can be up to 300 characters.' });
 
+const PostTextOptional = z
+  .string()
+  .trim()
+  .max(5000)
+  .refine((s) => graphemeCount(s) <= 300, { message: 'Posts can be up to 300 characters.' });
+
 export const CreatePostRequest = z
-  .object({ text: PostText, language: PostLanguage.default('en') })
-  .strict();
+  .object({
+    text: PostTextOptional,
+    language: PostLanguage.default('en'),
+    imageIds: z
+      .array(z.string().regex(/^[a-f0-9]{24}$/))
+      .max(4, 'You can attach up to 4 images.')
+      .refine((ids) => new Set(ids).size === ids.length, { message: 'Duplicate image.' })
+      .default([]),
+  })
+  .strict()
+  .refine((v) => v.text.length > 0 || v.imageIds.length > 0, {
+    message: 'Write something or add an image.',
+    path: ['text'],
+  });
 export type CreatePostRequest = z.infer<typeof CreatePostRequest>;
 
 export const EditPostRequest = z.object({ text: PostText }).strict();
 export type EditPostRequest = z.infer<typeof EditPostRequest>;
+
+export const PostImage = z.object({
+  url: z.string(),
+  width: z.number(),
+  height: z.number(),
+});
+export type PostImage = z.infer<typeof PostImage>;
 
 export const PostDto = z.object({
   id: z.string(),
@@ -156,6 +181,7 @@ export const PostDto = z.object({
   parentId: z.string().nullable(),
   likeCount: z.number(),
   replyCount: z.number(),
+  images: z.array(PostImage),
   author: z.object({
     id: z.string(),
     handle: z.string(),

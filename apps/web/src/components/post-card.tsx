@@ -8,6 +8,7 @@ import { ApiRequestError, api } from '@/lib/api';
 import { graphemeCount, timeAgo } from '@/lib/text';
 import { Avatar } from './avatar';
 import { Button } from './button';
+import { PostImages } from './post-images';
 
 const MAX = 300;
 
@@ -165,6 +166,7 @@ export function PostCard({
         </p>
       ) : null}
 
+      {!editing && post.images.length > 0 ? <PostImages images={post.images} /> : null}
       {!editing ? (
         <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link

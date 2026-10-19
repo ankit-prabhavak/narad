@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   ForbiddenException,
   Injectable,
@@ -6,12 +6,13 @@
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { type Model, Types } from 'mongoose';
-import type { CreatePostRequest, PostDto, PostPage } from '@narad/contracts';
+import type { PostDto, PostPage } from '@narad/contracts';
+import { avatarUrl, mediaUrl } from '../media/avatar-url';
+import { MediaAssetService } from '../media/media-asset.service';
 import { Block } from '../social/block.schema';
 import { Follow } from '../social/follow.schema';
 import { Mute } from '../social/mute.schema';
 import { User } from '../users/user.schema';
-import { avatarUrl } from '../media/avatar-url';
 import { Interaction } from './interaction.schema';
 import { Post } from './post.schema';
 
@@ -29,6 +30,7 @@ interface AuthorLike {
   id: string;
   handle: string;
   displayName: string;
+  avatarKey?: string | null;
   isPrivate: boolean;
 }
 
@@ -39,10 +41,17 @@ interface PostLike {
   parentId: Types.ObjectId | null;
   text: string;
   language: 'en' | 'hi';
+  images: Array<{ key: string; width: number; height: number }>;
   likeCount: number;
   replyCount: number;
   createdAt: Date;
   editedAt: Date | null;
+}
+
+interface NewPost {
+  text: string;
+  language: 'en' | 'hi';
+  imageIds?: string[];
 }
 
 type Visibility = 'ok' | 'blocked' | 'private';
@@ -63,6 +72,7 @@ export class PostsService {
     @InjectModel(Mute.name) private readonly mutes: Model<Mute>,
     @InjectModel(Interaction.name)
     private readonly interactions: Model<Interaction>,
+    private readonly media: MediaAssetService,
   ) {}
 
   // ---- visibility and hydration -----------------------------------------
@@ -166,6 +176,11 @@ export class PostsService {
         parentId: r.parentId ? r.parentId.toString() : null,
         likeCount: r.likeCount,
         replyCount: r.replyCount,
+        images: r.images.map((i) => ({
+          url: mediaUrl(i.key),
+          width: i.width,
+          height: i.height,
+        })),
         author: {
           id: a.id,
           handle: a.handle,
@@ -203,33 +218,52 @@ export class PostsService {
 
   // ---- create, read, edit, delete ---------------------------------------
 
-  async create(authorId: string, input: CreatePostRequest): Promise<PostDto> {
+  /** Claims the images first, then creates the post; if creation fails the images are released. */
+  private async insert(
+    authorId: string,
+    parentId: Types.ObjectId | null,
+    input: NewPost,
+  ): Promise<PostDto> {
+    const postId = new Types.ObjectId();
+    const images = await this.media.claim(
+      authorId,
+      input.imageIds ?? [],
+      postId,
+    );
+    let post: PostLike;
+    try {
+      post = await this.posts.create({
+        _id: postId,
+        authorId: oid(authorId),
+        parentId,
+        text: input.text,
+        language: input.language,
+        images,
+      });
+    } catch (err) {
+      await this.media.release(postId);
+      throw err;
+    }
+    return this.one(post, authorId);
+  }
+
+  async create(authorId: string, input: NewPost): Promise<PostDto> {
     const author = await this.users.findById(authorId).exec();
     if (!author) throw userNotFound();
-    const post = await this.posts.create({
-      authorId: oid(authorId),
-      text: input.text,
-      language: input.language,
-    });
-    return this.one(post, authorId);
+    return this.insert(authorId, null, input);
   }
 
   async reply(
     authorId: string,
     parentId: string,
-    input: CreatePostRequest,
+    input: NewPost,
   ): Promise<PostDto> {
     const { post: parent } = await this.loadVisible(parentId, authorId);
-    const post = await this.posts.create({
-      authorId: oid(authorId),
-      parentId: parent._id,
-      text: input.text,
-      language: input.language,
-    });
+    const dto = await this.insert(authorId, parent._id, input);
     await this.posts
       .updateOne({ _id: parent._id }, { $inc: { replyCount: 1 } })
       .exec();
-    return this.one(post, authorId);
+    return dto;
   }
 
   async get(id: string, viewerId: string | null): Promise<PostDto> {
@@ -264,6 +298,7 @@ export class PostsService {
         .updateOne({ _id: post.parentId }, { $inc: { replyCount: -1 } })
         .exec();
     }
+    await this.media.deleteForPost(post._id);
   }
 
   // ---- likes and bookmarks ----------------------------------------------

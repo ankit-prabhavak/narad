@@ -1,4 +1,4 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+﻿import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { type Model, Types } from 'mongoose';
 import type { Block } from '../social/block.schema';
 import type { Follow } from '../social/follow.schema';
@@ -7,6 +7,13 @@ import type { User } from '../users/user.schema';
 import type { Interaction } from './interaction.schema';
 import type { Post } from './post.schema';
 import { PostsService } from './posts.service';
+import type { MediaAssetService } from '../media/media-asset.service';
+
+const noMedia = {
+  claim: () => Promise.resolve([]),
+  release: () => Promise.resolve(),
+  deleteForPost: () => Promise.resolve(),
+} as unknown as MediaAssetService;
 
 interface Chain<T> {
   select: () => Chain<T>;
@@ -49,6 +56,7 @@ const postDoc = {
   language: 'en' as const,
   likeCount: 0,
   replyCount: 0,
+  images: [] as Array<{ key: string; width: number; height: number }>,
   createdAt: new Date('2026-01-01'),
   editedAt: null,
 };
@@ -115,7 +123,15 @@ function setup(o: Opts = {}) {
   } as unknown as Model<Interaction>;
 
   return {
-    svc: new PostsService(posts, users, follows, blocks, mutes, interactions),
+    svc: new PostsService(
+      posts,
+      users,
+      follows,
+      blocks,
+      mutes,
+      interactions,
+      noMedia,
+    ),
     feedFilters,
     created,
     postUpdates,
@@ -145,6 +161,7 @@ describe('PostsService basics', () => {
         'replyCount',
         'text',
         'viewer',
+        'images',
       ].sort(),
     );
   });
